@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+            background-image: url('/static/bg.jpg'); 
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+        }
+        h1, h2 {
+            text-align: center;
+            margin-top: 30px;
+        }
+        p {
+            text-align: center;
+        }
+        form {
+            max-width: 400px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        input[type="submit"],
+        input[type="button"],
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: calc(100% - 20px);
+        }
+        input[type="submit"]:hover,
+        input[type="button"]:hover,
+        button:hover {
+            background-color: #45a049;
+        }
+        label {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to Home Page</h1>
+        <p>This is the home page.</p>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <a href="/add_user" class="btn btn-primary"><i class="fas fa-user-plus"></i> Add User</a>
+            </div>
+            <div class="col-md-6">
+                <a href="/add_product" class="btn btn-success"><i class="fas fa-plus-circle"></i> Add Product</a>
+            </div>
+        </div>
+
+        <hr>
+
+        <h2>Search Product</h2>
+        <form id="searchForm">
+            <div class="input-group mb-3">
+                <input type="text" id="search" name="search" class="form-control" placeholder="Enter Product Name">
+                <button type="button" class="btn btn-outline-primary" onclick="searchProduct()"><i class="fas fa-search"></i> Search</button>
+            </div>
+        </form>
+
+        <h2>Delete Product</h2>
+        <form id="deleteForm">
+            <div class="input-group mb-3">
+                <input type="text" id="product_name" name="product_name" class="form-control" placeholder="Enter Product Name">
+                <button type="button" class="btn btn-outline-danger" onclick="deleteProduct()"><i class="fas fa-trash-alt"></i> Delete Product</button>
+            </div>
+        </form>
+        
+        <h2>Update Password</h2>
+        <form id="password-update-form">
+            <div class="mb-3">
+                <label for="username" class="form-label">Username:</label>
+                <input type="text" id="username" name="username" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="new_password" class="form-label">New Password:</label>
+                <input type="password" id="new_password" name="new_password" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-key"></i> Update Password</button>
+        </form>
+
+        <hr>
+
+        <h2>Product List</h2>
+        <ul class="product-list">
+            {% for product in products %}
+                <li>{{ product.name }} - {{ product.price }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#password-update-form').submit(function(event) {
+                event.preventDefault(); // Prevent the default form submission
+                
+                // Get form data
+                var formData = {
+                    'username': $('#username').val(),
+                    'new_password': $('#new_password').val()
+                };
+                
+                // Send POST request to update password
+                $.ajax({
+                    type: 'POST',
+                    url: '/update_password',
+                    data: formData,
+                    success: function(response) {
+                        alert(response.message); // Display success message
+                        // Optionally, you can reload the page or perform other actions
+                    },
+                    error: function(xhr, status, error) {
+                        alert("Error: " + xhr.responseText); // Display error message
+                    }
+                });
+            });
+        });
+
+        function deleteProduct() {
+            var productName = document.getElementById("product_name").value;
+            // Send a DELETE request using AJAX
+            $.ajax({
+                type: 'DELETE',
+                url: '/delete_product/' + productName,
+                success: function(response) {
+                    // Display success message
+                    alert("Product deleted successfully");
+                    // Redirect to home page after successful deletion
+                    window.location.href = "/home";
+                },
+                error: function(xhr, status, error) {
+                    alert("Error: " + xhr.responseText); // Display error message
+                }
+            });
+        }
+
+        function searchProduct() {
+            var searchQuery = document.getElementById("search").value;
+            window.location.href = "/search_product?search=" + searchQuery;
+        }
+    </script>
+</body>
+</html>
